@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"strings"
-
-	"github.com/davecgh/go-spew/spew"
 )
 
 //NewDeluge creates a new deluge instance
@@ -34,8 +32,6 @@ func (deluge Deluge) GetTorrentStatus(hash string) (TorrentStatus, error) {
 	if (i == TorrentStatus{}) {
 		return i, errors.New("Torrent could not be found in Deluge")
 	}
-
-	spew.Dump(i)
 
 	return i, nil
 }
