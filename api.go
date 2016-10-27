@@ -1,21 +1,21 @@
 package godeluge
 
-import(
-	"errors"
-	"net/http"
-	"io"
-	"strings"
+import (
 	"encoding/json"
+	"errors"
+	"io"
+	"net/http"
+	"strings"
 )
 
-func (deluge *Deluge) sendCommand(method string, params interface{}) (json.RawMessage, error){
+func (deluge *Deluge) sendCommand(method string, params interface{}) (json.RawMessage, error) {
 	reader, writer := io.Pipe()
 	var err error
 
-	go func () (){
+	go func() {
 		defer writer.Close()
 
-		var request = Request{Method: method, Params: params, Id: deluge.Id}
+		var request = Request{Method: method, Params: params, ID: deluge.ID}
 
 		err = json.NewEncoder(writer).Encode(&request)
 	}()
@@ -39,13 +39,13 @@ func (deluge *Deluge) sendCommand(method string, params interface{}) (json.RawMe
 	defer resp.Body.Close()
 
 	var r Response
-	err2 := json.NewDecoder(resp.Body).Decode(&r);
+	err2 := json.NewDecoder(resp.Body).Decode(&r)
 	if err2 != nil {
 		return nil, err2
 	}
 
 	c := resp.Header.Get("Set-Cookie")
-	if c != ""{
+	if c != "" {
 		deluge.Session = strings.Split(c, ";")[0]
 	}
 
@@ -54,17 +54,16 @@ func (deluge *Deluge) sendCommand(method string, params interface{}) (json.RawMe
 		if r.Error.Message == "Not authenticated" {
 			deluge.login()
 			return deluge.sendCommand(method, params)
-		}else{
-			err3 = errors.New("error:" + r.Error.Message)
 		}
+		err3 = errors.New("error:" + r.Error.Message)
 	}
 
 	return r.Result, err3
 }
 
-func (deluge *Deluge) login() ( error){
-	result, err := deluge.sendCommand("auth.login", []string {deluge.Password})
-	
+func (deluge *Deluge) login() error {
+	result, err := deluge.sendCommand("auth.login", []string{deluge.Password})
+
 	if err != nil {
 		return err
 	}

@@ -1,29 +1,33 @@
 package godeluge
 
-import(
+import (
 	"encoding/json"
 )
 
-type Deluge struct{
-	Session string
+//Deluge instance
+type Deluge struct {
+	Session  string
 	Password string
-	URL string
-	Id int32
+	URL      string
+	ID       int32
 }
 
-type Request struct{
-	Method string `json:"method"`
+//Request to deluge
+type Request struct {
+	Method string      `json:"method"`
 	Params interface{} `json:"params"`
-	Id int32 `json:"id"`
+	ID     int32       `json:"id"`
 }
 
-type Response struct{
-	Id int32
+//Response from Deluge
+type Response struct {
+	ID     int32
 	Result json.RawMessage
-	Error Error
+	Error  Error
 }
 
-type Error struct{
+//Error received from Deluge
+type Error struct {
 	Message string
-	Code int32
+	Code    int32
 }

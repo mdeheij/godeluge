@@ -1,13 +1,14 @@
 package godeluge
 
-import(
+import (
 	"encoding/json"
 	"errors"
 	"strings"
 )
 
+//NewDeluge creates a new deluge instance
 func NewDeluge(url string, password string) (*Deluge, error) {
-	var deluge Deluge = Deluge{URL: url, Password: password}
+	var deluge = Deluge{URL: url, Password: password}
 	var err error
 
 	err = deluge.login()
@@ -15,8 +16,9 @@ func NewDeluge(url string, password string) (*Deluge, error) {
 	return &deluge, err
 }
 
-func (deluge Deluge) Get_Torrent_Status(hash string, types []string) (map[string]interface {}, error) {
-	result, err := deluge.sendCommand("web.get_torrent_status", []interface{} {strings.ToLower(hash), types})
+//GetTorrentStatus returns the current status of a torrent
+func (deluge Deluge) GetTorrentStatus(hash string, types []string) (map[string]interface{}, error) {
+	result, err := deluge.sendCommand("web.get_torrent_status", []interface{}{strings.ToLower(hash), types})
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +31,7 @@ func (deluge Deluge) Get_Torrent_Status(hash string, types []string) (map[string
 
 	m := i.(map[string]interface{})
 
-	for _, v := range types{
+	for _, v := range types {
 		if m[v] == nil {
 			return nil, errors.New(v + " is invalid")
 		}
@@ -38,8 +40,9 @@ func (deluge Deluge) Get_Torrent_Status(hash string, types []string) (map[string
 	return m, nil
 }
 
-func (deluge Deluge) Remove_Torrent(magnet string) (error){
-	result, err := deluge.sendCommand("core.remove_torrent", []interface{} {strings.ToLower(magnet), true})
+//RemoveTorrent removes a torrent from Deluge
+func (deluge Deluge) RemoveTorrent(magnet string) error {
+	result, err := deluge.sendCommand("core.remove_torrent", []interface{}{strings.ToLower(magnet), true})
 	if err != nil {
 		return err
 	}
@@ -58,8 +61,9 @@ func (deluge Deluge) Remove_Torrent(magnet string) (error){
 	return nil
 }
 
-func (deluge Deluge) Add_Torrents(magnet string) (error){
-	result, err := deluge.sendCommand("web.add_torrents", []interface{} {[]interface{} {map[string]interface {} {"path": magnet, "options": nil}}})
+//AddTorrent adds a torrent to Deluge
+func (deluge Deluge) AddTorrent(magnet string) error {
+	result, err := deluge.sendCommand("web.add_torrents", []interface{}{[]interface{}{map[string]interface{}{"path": magnet, "options": nil}}})
 	if err != nil {
 		return err
 	}
