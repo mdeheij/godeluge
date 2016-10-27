@@ -17,32 +17,29 @@ func NewDeluge(url string, password string) (*Deluge, error) {
 }
 
 //GetTorrentStatus returns the current status of a torrent
-func (deluge Deluge) GetTorrentStatus(hash string, types []string) (map[string]interface{}, error) {
+func (deluge Deluge) GetTorrentStatus(hash string, types []string) (TorrentStatus, error) {
 	result, err := deluge.sendCommand("web.get_torrent_status", []interface{}{strings.ToLower(hash), types})
+	var i TorrentStatus
 	if err != nil {
-		return nil, err
+		return i, err
 	}
 
-	var i interface{}
 	err1 := json.Unmarshal(result, &i)
 	if err1 != nil {
-		return nil, err1
+		return TorrentStatus{}, err1
 	}
 
-	m := i.(map[string]interface{})
-
-	for _, v := range types {
-		if m[v] == nil {
-			return nil, errors.New(v + " is invalid")
-		}
+	if (i == TorrentStatus{}) {
+		return i, errors.New("Torrent could not be found in Deluge")
 	}
 
-	return m, nil
+	return i, nil
 }
 
 //RemoveTorrent removes a torrent from Deluge
 func (deluge Deluge) RemoveTorrent(magnet string) error {
 	result, err := deluge.sendCommand("core.remove_torrent", []interface{}{strings.ToLower(magnet), true})
+
 	if err != nil {
 		return err
 	}
@@ -63,7 +60,8 @@ func (deluge Deluge) RemoveTorrent(magnet string) error {
 
 //AddTorrent adds a torrent to Deluge
 func (deluge Deluge) AddTorrent(magnet string) error {
-	result, err := deluge.sendCommand("web.add_torrents", []interface{}{[]interface{}{map[string]interface{}{"path": magnet, "options": nil}}})
+	params := []interface{}{[]interface{}{map[string]interface{}{"path": magnet, "options": nil}}}
+	result, err := deluge.sendCommand("web.add_torrents", params)
 	if err != nil {
 		return err
 	}

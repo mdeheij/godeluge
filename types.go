@@ -31,3 +31,10 @@ type Error struct {
 	Message string
 	Code    int32
 }
+
+//TorrentStatus is the response of GetTorrentStatus and contains information about the requested torrent
+type TorrentStatus struct {
+	Name     string
+	Progress float64
+	ETA      float64
+}
