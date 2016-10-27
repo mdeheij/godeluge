@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"strings"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 //NewDeluge creates a new deluge instance
@@ -17,8 +19,8 @@ func NewDeluge(url string, password string) (*Deluge, error) {
 }
 
 //GetTorrentStatus returns the current status of a torrent
-func (deluge Deluge) GetTorrentStatus(hash string, types []string) (TorrentStatus, error) {
-	result, err := deluge.sendCommand("web.get_torrent_status", []interface{}{strings.ToLower(hash), types})
+func (deluge Deluge) GetTorrentStatus(hash string) (TorrentStatus, error) {
+	result, err := deluge.sendCommand("web.get_torrent_status", []interface{}{strings.ToLower(hash), STATUSTYPES})
 	var i TorrentStatus
 	if err != nil {
 		return i, err
@@ -32,6 +34,8 @@ func (deluge Deluge) GetTorrentStatus(hash string, types []string) (TorrentStatu
 	if (i == TorrentStatus{}) {
 		return i, errors.New("Torrent could not be found in Deluge")
 	}
+
+	spew.Dump(i)
 
 	return i, nil
 }
